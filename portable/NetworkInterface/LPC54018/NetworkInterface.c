@@ -177,14 +177,15 @@ status_t status;
 					if( xSendEventStructToIPTask( &xRxEvent, 0 ) == pdFALSE )
 					{
 						/* put this back if using bufferallocation_2.c */
-						/* vReleaseNetworkBuffer(pxBufferDescriptor); */
+						/*vReleaseNetworkBuffer(pxBufferDescriptor); */
 
 
 						iptraceETHERNET_RX_EVENT_LOST();
 					}
 					else
 					{
-						vReleaseNetworkBufferAndDescriptor( pxBufferDescriptor );
+						/* but this back if using bufferallocation_2.c */
+						/*vReleaseNetworkBufferAndDescriptor(pxBufferDescriptor); */
 					}
 				}
 			}
@@ -305,13 +306,12 @@ status_t status = ENET_SendFrame( EXAMPLE_ENET_BASE, &g_handle, pxNetworkBuffer-
 
 /* statically allocate the buffers */
 /* allocating them as uint32_t's to force them into word alignment, a requirement of the DMA. */
-static uint32_t buffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ][ ( ipBUFFER_PADDING + ENET_RXBUFF_SIZE ) / sizeof( uint32_t ) + 1 ] __attribute__( ( aligned( 4 ) ) );
+uint32_t buffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ][ ENET_RXBUFF_SIZE / sizeof( uint32_t ) + 1 ];
 void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] )
 {
 	for( int x = 0; x < ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS; x++ )
 	{
-		pxNetworkBuffers[ x ].pucEthernetBuffer = ( uint8_t * ) &buffers[ x ][ 0 ] + ipBUFFER_PADDING;
-		buffers[ x ][ 0 ] = ( uint32_t ) &pxNetworkBuffers[ x ];
+		pxNetworkBuffers[ x ].pucEthernetBuffer = ( uint8_t * ) &buffers[ x ][ 0 ];
 	}
 }
 
