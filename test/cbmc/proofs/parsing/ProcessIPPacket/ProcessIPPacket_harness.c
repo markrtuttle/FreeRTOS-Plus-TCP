@@ -40,13 +40,15 @@ void vARPRefreshCacheEntry( const MACAddress_t * pxMACAddress,
 
 /* Function Abstraction:
  * Function vARPRefreshCacheEntry is proven to be memory safe separately. */
+#if 0
 eFrameProcessingResult_t __CPROVER_file_local_FreeRTOS_IP_c_prvProcessICMPPacket( ICMPPacket_t * const pxICMPPacket )
 {
     eFrameProcessingResult_t eReturn;
-    __CPROVER_assert( pxICMPPacket != NULL, "ICMP packet sent cannot be NULL" );
+    //assert( pxICMPPacket != NULL);
 
     return eReturn;
 }
+#endif
 
 uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer,
                                      size_t uxBufferLength,
@@ -100,7 +102,11 @@ void harness()
     pxNetworkBuffer->xDataLength = xLocalDatalength;
 
     /* Pointer to the start of the Ethernet frame. It should be able to access the whole Ethernet frame.*/
-    pxNetworkBuffer->pucEthernetBuffer = nondet_bool() ? NULL : malloc( xLocalDatalength );
+
+    // TODO: Prefer the following definition (this with an assert cause cbmc post-processing to hang)
+    // pxNetworkBuffer->pucEthernetBuffer = nondet_bool() ? NULL : malloc( xLocalDatalength );
+    pxNetworkBuffer->pucEthernetBuffer = malloc( xLocalDatalength );
+
     //malloc( sizeof( IPPacket_t ) );//malloc(xLocalDatalength);//malloc( ipTOTAL_ETHERNET_FRAME_SIZE );
     __CPROVER_assume( pxNetworkBuffer->pucEthernetBuffer != NULL );
 

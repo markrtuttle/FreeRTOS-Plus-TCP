@@ -290,7 +290,7 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
 /*
  * Process incoming ICMP packets.
  */
-    static eFrameProcessingResult_t prvProcessICMPPacket( ICMPPacket_t * const pxICMPPacket );
+     eFrameProcessingResult_t prvProcessICMPPacket( ICMPPacket_t * const pxICMPPacket );
 #endif /* ( ipconfigREPLY_TO_INCOMING_PINGS == 1 ) || ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */
 
 /*
@@ -2837,8 +2837,8 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
                             {
                                 /* Map the buffer onto a ICMP-Packet struct to easily access the
                                  * fields of ICMP packet. */
-                                ICMPPacket_t * pxICMPPacket = ipCAST_PTR_TO_TYPE_PTR( ICMPPacket_t, pxNetworkBuffer->pucEthernetBuffer );
-                                eReturn = prvProcessICMPPacket( pxICMPPacket );
+			      ICMPPacket_t * pxICMPPacket = (ICMPPacket_t *) pxNetworkBuffer->pucEthernetBuffer ;
+				eReturn = prvProcessICMPPacket( pxICMPPacket );
                             }
                             else
                             {
@@ -2848,11 +2848,18 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
                     #endif /* ( ipconfigREPLY_TO_INCOMING_PINGS == 1 ) || ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */
                     break;
 
+#if 0
+
                     #if ( ipconfigUSE_IPv6 != 0 )
                         case ipPROTOCOL_ICMP_IPv6:
                             eReturn = prvProcessICMPMessage_IPv6( pxNetworkBuffer );
                             break;
                     #endif
+#endif
+
+
+
+#if 0
 
                 case ipPROTOCOL_UDP:
                    {
@@ -2925,10 +2932,13 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
                             xProcessedTCPMessage++;
                             break;
                     #endif /* if ipconfigUSE_TCP == 1 */
+#endif
+
                 default:
                     /* Not a supported frame type. */
                     break;
             }
+
         }
     }
 
@@ -3048,9 +3058,14 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
  * @return eReleaseBuffer when the message buffer should be released, or eReturnEthernetFrame
  *                        when the packet should be returned.
  */
-    static eFrameProcessingResult_t prvProcessICMPPacket( ICMPPacket_t * const pxICMPPacket )
+    eFrameProcessingResult_t prvProcessICMPPacket( ICMPPacket_t * const pxICMPPacket )
     {
+
         eFrameProcessingResult_t eReturn = eReleaseBuffer;
+	assert(pxICMPPacket != 0);
+#if 0
+
+
 
         iptraceICMP_PACKET_RECEIVED();
 
@@ -3077,8 +3092,10 @@ static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket,
                 break;
         }
 
+#endif
         return eReturn;
     }
+
 
 #endif /* ( ipconfigREPLY_TO_INCOMING_PINGS == 1 ) || ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */
 /*-----------------------------------------------------------*/
